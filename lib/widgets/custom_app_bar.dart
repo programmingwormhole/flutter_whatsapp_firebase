@@ -3,11 +3,14 @@ import 'package:whatsapp_chat/utils/colors.dart';
 
 PreferredSizeWidget customWidget({
   required String title,
+  required context
 }) {
   return AppBar(
     backgroundColor: appBarColor,
     leading: IconButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.pop(context);
+      },
       icon: const Icon(
         Icons.arrow_back,
         color: white,
