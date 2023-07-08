@@ -14,7 +14,6 @@ class MessageScreen extends StatefulWidget {
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-
   List<PopupMenuEntry<dynamic>> popUpItems = [
     popupMenuItem(
       title: 'Add to contacts',
@@ -47,100 +46,87 @@ class _MessageScreenState extends State<MessageScreen> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: background,
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: appBarColor,
-      //   title: Row(
-      //     children: [
-      //       InkWell(
-      //         onTap: () {
-      //           Navigator.pop(context);
-      //         },
-      //         child: const Icon(
-      //           Icons.arrow_back_ios_new,
-      //           color: white,
-      //         ),
-      //       ),
-      //       const SizedBox(
-      //         width: 5,
-      //       ),
-      //       CircleAvatar(
-      //         backgroundColor: white.withOpacity(.1),
-      //         backgroundImage: NetworkImage(widget.image),
-      //       ),
-      //       const SizedBox(
-      //         width: 10,
-      //       ),
-      //       Column(
-      //         crossAxisAlignment: CrossAxisAlignment.start,
-      //         children: [
-      //           Text(
-      //             widget.name,
-      //             maxLines: 1,
-      //             overflow: TextOverflow.ellipsis,
-      //             style: const TextStyle(
-      //               color: white,
-      //               fontSize: 18,
-      //             ),
-      //           ),
-      //           Text(
-      //             'Last seen 01:37 AM',
-      //             style: TextStyle(
-      //               color: white.withOpacity(.5),
-      //               fontSize: 12,
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //       const Spacer(),
-      //       Row(
-      //         crossAxisAlignment: CrossAxisAlignment.center,
-      //         mainAxisAlignment: MainAxisAlignment.end,
-      //         children: [
-      //           const Icon(
-      //             Icons.videocam_rounded,
-      //             color: white,
-      //           ),
-      //           const SizedBox(
-      //             width: 15,
-      //           ),
-      //           const Icon(
-      //             Icons.call,
-      //             color: white,
-      //           ),
-      //           PopupMenuButton(
-      //             onSelected: (result) {
-      //               switch (result) {
-      //                 case 0:
-      //                   print('0');
-      //                   break;
-      //                 case 1:
-      //                   print('1');
-      //                   break;
-      //                 case 2:
-      //                   print('3');
-      //                   break;
-      //                 case 3:
-      //                   print('4');
-      //                   break;
-      //               }
-      //             },
-      //             color: appBarColor,
-      //             icon: const Icon(
-      //               Icons.more_vert,
-      //               size: 26,
-      //               color: white,
-      //             ),
-      //             itemBuilder: (BuildContext context) => popUpItems,
-      //           ),
-      //         ],
-      //       )
-      //     ],
-      //   ),
-      // ),
       appBar: AppBar(
         backgroundColor: appBarColor,
-
+        leadingWidth: size.width * .25,
+        leading: InkWell(
+          onTap: (){
+            Navigator.pop(context);
+          },
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: white,
+                ),
+              ),
+              CircleAvatar(
+                backgroundColor: white.withOpacity(.1),
+                backgroundImage: NetworkImage(widget.image),
+              )
+            ],
+          ),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.name,
+              style: const TextStyle(color: white, fontSize: 15),
+            ),
+            Text('Online',
+            style: TextStyle(
+              color: white.withOpacity(.5),
+              fontSize: 12
+            ),)
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.call,
+              color: white,
+              size: 20,
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.videocam_rounded,
+              color: white,
+              size: 25,
+            ),
+          ),
+          PopupMenuButton(
+            onSelected: (result) {
+              switch (result) {
+                case 0:
+                  print('0');
+                  break;
+                case 1:
+                  print('1');
+                  break;
+                case 2:
+                  print('3');
+                  break;
+                case 3:
+                  print('4');
+                  break;
+              }
+            },
+            color: appBarColor,
+            icon: const Icon(
+              Icons.more_vert,
+              size: 26,
+              color: white,
+            ),
+            itemBuilder: (BuildContext context) => popUpItems,
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(

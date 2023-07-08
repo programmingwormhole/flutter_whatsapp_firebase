@@ -22,11 +22,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   TabController? _tabController;
 
   List<PopupMenuEntry<dynamic>> popUpItems = [
-    popupMenuItem(title: 'New group', onTap: () {}, value: 0),
-    popupMenuItem(title: 'New broadcast', onTap: () {}, value: 1),
-    popupMenuItem(title: 'Linked device', onTap: () {}, value: 2),
-    popupMenuItem(title: 'Starred message', onTap: () {}, value: 3),
-    popupMenuItem(title: 'Settings', onTap: () {}, value: 4),
+    popupMenuItem(title: 'New group', onTap: () {}, value: 0, color: white,),
+    popupMenuItem(title: 'New broadcast', onTap: () {}, value: 1, color: white,),
+    popupMenuItem(title: 'Linked device', onTap: () {}, value: 2, color: white,),
+    popupMenuItem(title: 'Starred message', onTap: () {}, value: 3, color: white,),
+    popupMenuItem(title: 'Settings', onTap: () {}, value: 4, color: white,),
   ];
   IconData floatingIcon = Icons.message;
 
@@ -42,30 +42,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           switch (_tabController!.index) {
             case 0:
               popUpItems = [
-                popupMenuItem(title: 'Settings', value: 0),
+                popupMenuItem(title: 'Settings', value: 0, color: white,),
               ];
               break;
             case 1:
               popUpItems = [
-                popupMenuItem(title: 'New group', value: 0),
-                popupMenuItem(title: 'New broadcast', value: 1),
-                popupMenuItem(title: 'Linked device', value: 2),
-                popupMenuItem(title: 'Starred message', value: 3),
-                popupMenuItem(title: 'Settings', value: 4),
+                popupMenuItem(title: 'New group', value: 0, color: white,),
+                popupMenuItem(title: 'New broadcast', value: 1, color: white,),
+                popupMenuItem(title: 'Linked device', value: 2, color: white,),
+                popupMenuItem(title: 'Starred message', value: 3, color: white,),
+                popupMenuItem(title: 'Settings', value: 4, color: white,),
               ];
               floatingIcon = Icons.message;
               break;
             case 2:
               popUpItems = [
-                popupMenuItem(title: 'Status Privacy', value: 0),
-                popupMenuItem(title: 'Settings', value: 1),
+                popupMenuItem(title: 'Status Privacy', value: 0, color: white,),
+                popupMenuItem(title: 'Settings', value: 1, color: white,),
               ];
               floatingIcon = Icons.camera_alt;
               break;
             case 3:
               popUpItems = [
-                popupMenuItem(title: 'Clear call logs', value: 0),
-                popupMenuItem(title: 'Settings', value: 1),
+                popupMenuItem(title: 'Clear call logs', value: 0, color: white,),
+                popupMenuItem(title: 'Settings', value: 1, color: white,),
               ];
               floatingIcon = Icons.add_ic_call;
               break;
@@ -102,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             size: 26,
           ),
           PopupMenuButton(
+
             onSelected: (result) {
               switch (_tabController!.index) {
                 case 0:
@@ -149,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   }
               }
             },
-            color: white,
+            color: appBarColor,
             icon: Icon(
               Icons.more_vert,
               size: 26,
