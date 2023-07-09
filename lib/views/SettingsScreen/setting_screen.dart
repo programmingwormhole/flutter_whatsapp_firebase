@@ -10,7 +10,20 @@ class SettingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-      appBar: customWidget(title: 'Settings'),
+      appBar: customAppBar(
+        title: 'Settings',
+        context: context,
+        showAction: true,
+        action: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.search,
+              color: white,
+            ),
+          )
+        ]
+      ),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(

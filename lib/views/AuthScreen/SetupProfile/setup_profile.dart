@@ -57,7 +57,8 @@ class _SetupProfileState extends State<SetupProfile> {
         'profile_picture': profilePic,
         'phone_number': widget.phoneNumber,
         'verified': 0,
-        'status': 'Online'
+        'status': 'Online',
+        'groupID' : [],
       });
     } else {
       print('Register New');
@@ -67,7 +68,8 @@ class _SetupProfileState extends State<SetupProfile> {
         'profile_picture': profilePic,
         'phone_number': widget.phoneNumber,
         'verified': 0,
-        'status': 'Online'
+        'status': 'Online',
+        'groupID' : [],
       });
     }
   }

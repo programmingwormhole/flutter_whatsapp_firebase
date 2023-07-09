@@ -9,6 +9,7 @@ import 'package:whatsapp_chat/views/TabView/CommunityTab/community_tab.dart';
 import '../../components/pop_up_menu_item.dart';
 import '../../components/tabs.dart';
 import '../../utils/config.dart';
+import '../ContactsScreen/contact_screen.dart';
 import '../TabView/StatusTab/status_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,11 +23,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   TabController? _tabController;
 
   List<PopupMenuEntry<dynamic>> popUpItems = [
-    popupMenuItem(title: 'New group', onTap: () {}, value: 0, color: white,),
-    popupMenuItem(title: 'New broadcast', onTap: () {}, value: 1, color: white,),
-    popupMenuItem(title: 'Linked device', onTap: () {}, value: 2, color: white,),
-    popupMenuItem(title: 'Starred message', onTap: () {}, value: 3, color: white,),
-    popupMenuItem(title: 'Settings', onTap: () {}, value: 4, color: white,),
+    popupMenuItem(
+      title: 'New group',
+      onTap: () {},
+      value: 0,
+      color: white,
+    ),
+    popupMenuItem(
+      title: 'New broadcast',
+      onTap: () {},
+      value: 1,
+      color: white,
+    ),
+    popupMenuItem(
+      title: 'Linked device',
+      onTap: () {},
+      value: 2,
+      color: white,
+    ),
+    popupMenuItem(
+      title: 'Starred message',
+      onTap: () {},
+      value: 3,
+      color: white,
+    ),
+    popupMenuItem(
+      title: 'Settings',
+      onTap: () {},
+      value: 4,
+      color: white,
+    ),
   ];
   IconData floatingIcon = Icons.message;
 
@@ -42,30 +68,70 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           switch (_tabController!.index) {
             case 0:
               popUpItems = [
-                popupMenuItem(title: 'Settings', value: 0, color: white,),
+                popupMenuItem(
+                  title: 'Settings',
+                  value: 0,
+                  color: white,
+                ),
               ];
               break;
             case 1:
               popUpItems = [
-                popupMenuItem(title: 'New group', value: 0, color: white,),
-                popupMenuItem(title: 'New broadcast', value: 1, color: white,),
-                popupMenuItem(title: 'Linked device', value: 2, color: white,),
-                popupMenuItem(title: 'Starred message', value: 3, color: white,),
-                popupMenuItem(title: 'Settings', value: 4, color: white,),
+                popupMenuItem(
+                  title: 'New group',
+                  value: 0,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'New broadcast',
+                  value: 1,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'Linked device',
+                  value: 2,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'Starred message',
+                  value: 3,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'Settings',
+                  value: 4,
+                  color: white,
+                ),
               ];
               floatingIcon = Icons.message;
               break;
             case 2:
               popUpItems = [
-                popupMenuItem(title: 'Status Privacy', value: 0, color: white,),
-                popupMenuItem(title: 'Settings', value: 1, color: white,),
+                popupMenuItem(
+                  title: 'Status Privacy',
+                  value: 0,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'Settings',
+                  value: 1,
+                  color: white,
+                ),
               ];
               floatingIcon = Icons.camera_alt;
               break;
             case 3:
               popUpItems = [
-                popupMenuItem(title: 'Clear call logs', value: 0, color: white,),
-                popupMenuItem(title: 'Settings', value: 1, color: white,),
+                popupMenuItem(
+                  title: 'Clear call logs',
+                  value: 0,
+                  color: white,
+                ),
+                popupMenuItem(
+                  title: 'Settings',
+                  value: 1,
+                  color: white,
+                ),
               ];
               floatingIcon = Icons.add_ic_call;
               break;
@@ -82,7 +148,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         elevation: 0,
         backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
-        title: Text(appName,
+        title: Text(
+          appName,
           style: TextStyle(
             color: white.withOpacity(.5),
           ),
@@ -102,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             size: 26,
           ),
           PopupMenuButton(
-
             onSelected: (result) {
               switch (_tabController!.index) {
                 case 0:
@@ -220,7 +286,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               : FloatingActionButton(
                   shape: const CircleBorder(),
                   backgroundColor: primary,
-                  onPressed: () {},
+                  onPressed: _tabController!.index == 1 ? () {
+                    navigator(context, const ContactScreen());
+                  } : (){
+                    print('Others');
+                  },
                   child: Icon(
                     floatingIcon,
                     color: white,
