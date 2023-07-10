@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/data.dart';
@@ -7,41 +9,80 @@ class StatusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final snapshot = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
+        .snapshots();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(
           height: 10,
         ),
-        ListTile(
-          leading: Container(
-            alignment: Alignment.bottomRight,
-            height: 60,
-            width: 60,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: NetworkImage(
-                    'https://scontent.fdac147-1.fna.fbcdn.net/v/t39.30808-6/355248707_2000434660314527_6084837114673299240_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeErgjxVMFDbBQrm3Z41Or6IQEW6IJatGzBARboglq0bMBd46dFrRBdRsNklogfgdZD4gwq18aImRDykmsW7kZx9&_nc_ohc=LSzn3WD9ydQAX8d7l-s&_nc_ht=scontent.fdac147-1.fna&oh=00_AfBokbb2uwQ9EDjBctxPa8EzXOH1bRjmmoPp6jQ8WCvXNg&oe=64A9E117'),
-              ),
-            ),
-            child: Container(
-                decoration:
-                    const BoxDecoration(color: primary, shape: BoxShape.circle),
-                child: const Icon(
-                  Icons.add,
-                  color: white,
-                )),
-          ),
-          title: const Text(
-            'My status',
-            style: TextStyle(color: white, fontSize: 18),
-          ),
-          subtitle: Text(
-            'Tap to add status update',
-            style: TextStyle(color: white.withOpacity(.5)),
-          ),
-        ),
+        StreamBuilder(
+            stream: snapshot,
+            builder: (_, snap) {
+              if(snap.connectionState == ConnectionState.waiting){
+                return ListTile(
+                  leading: Container(
+                    alignment: Alignment.bottomRight,
+                    height: 60,
+                    width: 60,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/profile.jpg'),
+                      ),
+                    ),
+                    child: Container(
+                        decoration: const BoxDecoration(
+                            color: primary, shape: BoxShape.circle),
+                        child: const Icon(
+                          Icons.add,
+                          color: white,
+                        )),
+                  ),
+                  title: const Text(
+                    'My status',
+                    style: TextStyle(color: white, fontSize: 18),
+                  ),
+                  subtitle: Text(
+                    'Tap to add status update',
+                    style: TextStyle(color: white.withOpacity(.5)),
+                  ),
+                );
+              } else{
+                return ListTile(
+                  leading: Container(
+                    alignment: Alignment.bottomRight,
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: NetworkImage(snap.data!['profile_picture']),
+                      ),
+                    ),
+                    child: Container(
+                        decoration: const BoxDecoration(
+                            color: primary, shape: BoxShape.circle),
+                        child: const Icon(
+                          Icons.add,
+                          color: white,
+                        )),
+                  ),
+                  title: const Text(
+                    'My status',
+                    style: TextStyle(color: white, fontSize: 18),
+                  ),
+                  subtitle: Text(
+                    'Tap to add status update',
+                    style: TextStyle(color: white.withOpacity(.5)),
+                  ),
+                );
+              }
+            }),
         Divider(
           color: white.withOpacity(.1),
         ),

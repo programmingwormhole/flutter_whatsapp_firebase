@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/components/page_route.dart';
+import 'package:whatsapp_chat/models/user_model.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/utils/config.dart';
 import 'package:whatsapp_chat/views/HomeScreen/home_screen.dart';
@@ -22,17 +26,25 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
-    Timer(const Duration(seconds: 2), () {
-      user != null
-          ? Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
-            )
-          : navigator(
-              context,
-              const WelcomeScreen(),
-            );
+    Timer(const Duration(seconds: 2), () async {
+      if (user != null) {
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.phoneNumber)
+            .get();
+        UserModel userModel = UserModel.fromJson(userData);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen(user: userModel,)),
+          (route) => false,
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          (route) => false,
+        );
+      }
     });
   }
 

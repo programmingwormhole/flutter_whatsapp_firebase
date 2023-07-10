@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/components/page_route.dart';
+import 'package:whatsapp_chat/models/user_model.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/views/SettingsScreen/setting_screen.dart';
 import 'package:whatsapp_chat/views/TabView/CallsTab/call_tab.dart';
@@ -13,7 +15,9 @@ import '../ContactsScreen/contact_screen.dart';
 import '../TabView/StatusTab/status_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final UserModel user;
+
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,7 +25,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   TabController? _tabController;
-
   List<PopupMenuEntry<dynamic>> popUpItems = [
     popupMenuItem(
       title: 'New group',
@@ -59,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    print(widget.user.phoneNumber);
     _tabController = TabController(
       length: 4,
       vsync: this,
@@ -286,11 +290,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               : FloatingActionButton(
                   shape: const CircleBorder(),
                   backgroundColor: primary,
-                  onPressed: _tabController!.index == 1 ? () {
-                    navigator(context, const ContactScreen());
-                  } : (){
-                    print('Others');
-                  },
+                  onPressed: _tabController!.index == 1
+                      ? () {
+                          navigator(
+                            context,
+                            ContactScreen(
+                              user: widget.user,
+                            ),
+                          );
+                        }
+                      : () {
+                          print('Others');
+                        },
                   child: Icon(
                     floatingIcon,
                     color: white,

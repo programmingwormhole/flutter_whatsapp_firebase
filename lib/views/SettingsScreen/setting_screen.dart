@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/widgets/custom_app_bar.dart';
@@ -8,22 +10,23 @@ class SettingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = FirebaseAuth.instance;
+    final fireStore = FirebaseFirestore.instance;
     return Scaffold(
       backgroundColor: background,
       appBar: customAppBar(
-        title: 'Settings',
-        context: context,
-        showAction: true,
-        action: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.search,
-              color: white,
-            ),
-          )
-        ]
-      ),
+          title: 'Settings',
+          context: context,
+          showAction: true,
+          action: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.search,
+                color: white,
+              ),
+            )
+          ]),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
@@ -31,33 +34,40 @@ class SettingScreen extends StatelessWidget {
             const SizedBox(
               height: 5,
             ),
-            ListTile(
-              leading: const CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(
-                    'https://scontent.fdac147-1.fna.fbcdn.net/v/t39.30808-6/355248707_2000434660314527_6084837114673299240_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeErgjxVMFDbBQrm3Z41Or6IQEW6IJatGzBARboglq0bMBd46dFrRBdRsNklogfgdZD4gwq18aImRDykmsW7kZx9&_nc_ohc=LSzn3WD9ydQAX8d7l-s&_nc_ht=scontent.fdac147-1.fna&oh=00_AfBokbb2uwQ9EDjBctxPa8EzXOH1bRjmmoPp6jQ8WCvXNg&oe=64A9E117'),
-              ),
-              title: const Text(
-                'Md Shirajul Islam',
-                style: TextStyle(
-                  color: white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Text(
-                'Before you judge me, make sure you are perfect!',
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: white.withOpacity(.5), fontSize: 12),
-              ),
-              trailing: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.qr_code,
-                    color: primary,
-                    size: 30,
-                  )),
-            ),
+            StreamBuilder(
+                stream: fireStore
+                    .collection('users')
+                    .doc(auth.currentUser!.phoneNumber)
+                    .snapshots(),
+                builder: (_, snap) {
+                  final data = snap.data!;
+                  return ListTile(
+                    leading: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(data['profile_picture']),
+                    ),
+                    title: Text(data['name'],
+                      style: const TextStyle(
+                        color: white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Before you judge me, make sure you are perfect!',
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          TextStyle(color: white.withOpacity(.5), fontSize: 12),
+                    ),
+                    trailing: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.qr_code,
+                          color: primary,
+                          size: 30,
+                        )),
+                  );
+                }),
             Divider(
               color: white.withOpacity(.1),
             ),

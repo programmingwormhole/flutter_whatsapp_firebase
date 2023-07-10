@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/utils/message_data.dart';
@@ -6,14 +8,87 @@ import '../../components/pop_up_menu_item.dart';
 class MessageScreen extends StatefulWidget {
   final String name;
   final String image;
+  final String receiverID;
 
-  const MessageScreen({super.key, required this.name, required this.image});
+  const MessageScreen({
+    super.key,
+    required this.name,
+    required this.image,
+    required this.receiverID,
+  });
 
   @override
   State<MessageScreen> createState() => _MessageScreenState();
 }
 
 class _MessageScreenState extends State<MessageScreen> {
+  final _messageController = TextEditingController();
+  final auth = FirebaseAuth.instance;
+  final fireStore = FirebaseFirestore.instance;
+
+  sendMessage () async {
+    String message = _messageController.text;
+    _messageController.clear();
+    await fireStore
+        .collection('users')
+        .doc(auth.currentUser!.phoneNumber)
+        .collection('messages')
+        .doc(widget.receiverID)
+        .collection('chats')
+        .add({
+      'sender_number': auth.currentUser!.phoneNumber,
+      'receiver_number': widget.receiverID,
+      'message': message,
+      'type': 'text',
+      'date': DateTime.now(),
+    }).then((value) {
+      fireStore
+          .collection('users')
+          .doc(auth.currentUser!.phoneNumber)
+          .collection('messages')
+          .doc(widget.receiverID)
+          .set({
+        'last_message': message,
+      });
+    });
+
+    await fireStore
+        .collection('users')
+        .doc(widget.receiverID)
+        .collection('messages')
+        .doc(auth.currentUser!.phoneNumber)
+        .collection('chats')
+        .add({
+      'sender_number': widget.receiverID,
+      'receiver_number': auth.currentUser!.phoneNumber,
+      'message': message,
+      'type': 'text',
+      'date': DateTime.now(),
+    }).then((value) {
+      fireStore
+          .collection('users')
+          .doc(widget.receiverID)
+          .collection('messages')
+          .doc(auth.currentUser!.phoneNumber)
+          .set({
+        'last_message': message,
+      });
+    });
+  }
+  addFriend () async {
+    await fireStore.collection('users')
+        .doc(auth.currentUser!.phoneNumber)
+        .collection('friends').add({
+      'friend_number' : widget.receiverID,
+    }).then((value){
+      fireStore.collection('users')
+          .doc(widget.receiverID)
+          .collection('friends').add({
+        'friend_number' : auth.currentUser!.phoneNumber,
+      });
+    });
+  }
+
   List<PopupMenuEntry<dynamic>> popUpItems = [
     popupMenuItem(
       title: 'Add to contacts',
@@ -50,8 +125,8 @@ class _MessageScreenState extends State<MessageScreen> {
         backgroundColor: appBarColor,
         leadingWidth: size.width * .25,
         leading: InkWell(
-          onTap: (){
-            Navigator.pop(context);
+          onTap: () {
+            // Navigator.pop(context);
           },
           child: Row(
             children: [
@@ -74,14 +149,14 @@ class _MessageScreenState extends State<MessageScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.name,
+            Text(
+              widget.name,
               style: const TextStyle(color: white, fontSize: 15),
             ),
-            Text('Online',
-            style: TextStyle(
-              color: white.withOpacity(.5),
-              fontSize: 12
-            ),)
+            Text(
+              'Online',
+              style: TextStyle(color: white.withOpacity(.5), fontSize: 12),
+            )
           ],
         ),
         actions: [
@@ -340,6 +415,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             SizedBox(
                               width: size.width * .4,
                               child: TextField(
+                                controller: _messageController,
                                 maxLines: 5,
                                 minLines: 1,
                                 keyboardType: TextInputType.multiline,
@@ -373,17 +449,23 @@ class _MessageScreenState extends State<MessageScreen> {
                   const SizedBox(
                     width: 10,
                   ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Icon(
-                          Icons.mic,
-                          color: white,
+                  InkWell(
+                    onTap: () async {
+                      sendMessage();
+                      addFriend();
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Icon(
+                            Icons.mic,
+                            color: white,
+                          ),
                         ),
                       ),
                     ),

@@ -5,7 +5,7 @@ PreferredSizeWidget customAppBar({
   required String title,
   String? subtitle,
   required context,
-   List<Widget>? action,
+  List<Widget>? action,
   bool? showAction,
 }) {
   return AppBar(
@@ -28,13 +28,12 @@ PreferredSizeWidget customAppBar({
             color: white.withOpacity(.5),
           ),
         ),
-        subtitle == null ? const SizedBox() : Text(
-          subtitle,
-          style: TextStyle(
-            color: white.withOpacity(.5),
-            fontSize: 12
-          ),
-        ),
+        subtitle == null
+            ? const SizedBox()
+            : Text(
+                subtitle,
+                style: TextStyle(color: white.withOpacity(.5), fontSize: 12),
+              ),
       ],
     ),
     actions: showAction == true ? action : null,
