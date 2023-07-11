@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:whatsapp_chat/models/user_model.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/utils/message_data.dart';
@@ -56,9 +57,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -163,13 +162,12 @@ class _MessageScreenState extends State<MessageScreen> {
               Expanded(
                 child: StreamBuilder(
                     stream: fireStore
-                        .collection('users')
-                        .doc(widget.currentUser.phoneNumber)
-                        .collection('messages')
-                        .doc(widget.receiverName)
-                        .collection('chats')
-                        .orderBy('date', descending: true)
-                        .snapshots(),
+                    .collection('users')
+                    .doc(widget.currentUser.phoneNumber)
+                    .collection('messages')
+                    .doc(widget.receiverID)
+                    .collection('chats')
+                    .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -178,39 +176,85 @@ class _MessageScreenState extends State<MessageScreen> {
                       } else {
                         if (snapshot.data!.docs.isEmpty) {
                           return Center(
-                            child: Text(
-                              'No Message',
-                              style: TextStyle(color: white.withOpacity(.9)),
+                            child: Container(
+                              width: size.width * .6,
+                              height: size.height * .4,
+                              decoration: BoxDecoration(
+                                color: white.withOpacity(.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'No messages here yet...',
+                                      style: TextStyle(
+                                        color: white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      'Send a message or tap the\ngreetings below.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: white.withOpacity(.5),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Lottie.asset(
+                                      'assets/json/greetings.json',
+                                      width: 200,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           );
                         }
-                        return ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          reverse: true,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (_, index) {
-                            final data = snapshot.data!.docs[index];
-                            bool isSender = data['sender_number'] ==
-                                widget.currentUser.phoneNumber;
-                            return Row(
-                              mainAxisAlignment: isSender ? MainAxisAlignment
-                                  .end : MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  margin: const EdgeInsets.all(16),
-                                  constraints: const BoxConstraints(
-                                      maxWidth: 200),
-                                  decoration: BoxDecoration(
-                                      color: isSender ? primary : white
-                                          .withOpacity(.1),
-                                      borderRadius: BorderRadius.circular(12)
-                                  ),
-                                )
-                              ],
-                            );
-                          },);
+                        else{
+                          return ListView.builder(
+                            itemCount: snapshot.data!.docs.length,
+                            reverse: true,
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (_, index) {
+                              final data = snapshot.data!.docs[index];
+                              bool isSender = data['sender_id'] ==
+                                  widget.currentUser.phoneNumber;
+                              return Row(
+                                mainAxisAlignment: isSender
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    margin: const EdgeInsets.all(5),
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 200),
+                                    decoration: BoxDecoration(
+                                        color: isSender
+                                            ? primary
+                                            : white.withOpacity(.1),
+                                        borderRadius: BorderRadius.circular(12)),
+                                    child: Center(
+                                      child: Text(data['message']),
+                                    ),
+                                  )
+                                ],
+                              );
+
+                            },
+                          );
+                        }
                       }
+
                     }),
               ),
               SendMessageWidget(
