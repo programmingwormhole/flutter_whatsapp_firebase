@@ -1,12 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/components/page_route.dart';
+import 'package:whatsapp_chat/models/user_model.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/views/MessageScreen/message_screen.dart';
 import '../../../utils/data.dart';
 
 class ChatTab extends StatelessWidget {
-  const ChatTab({super.key});
+  final UserModel user;
+
+  const ChatTab({
+    super.key,
+    required this.user,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +36,10 @@ class ChatTab extends StatelessWidget {
                     navigator(
                       context,
                       MessageScreen(
-                        name: data['name'],
-                        image: data['profile_picture'],
                         receiverID: data['phone_number'],
+                        currentUser: user,
+                        receiverName: data['name'],
+                        receiverImage: data['profile_picture'],
                       ),
                     );
                   },

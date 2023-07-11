@@ -243,11 +243,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       body: Center(
         child: TabBarView(
           controller: _tabController,
-          children: const [
-            CommunityTab(),
-            ChatTab(),
-            StatusScreen(),
-            CallTab(),
+          children: [
+            const CommunityTab(),
+            ChatTab(user: widget.user,),
+            const StatusScreen(),
+            const CallTab(),
           ],
         ),
       ),

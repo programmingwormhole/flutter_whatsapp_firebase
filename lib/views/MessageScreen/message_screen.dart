@@ -1,20 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:whatsapp_chat/models/user_model.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/utils/message_data.dart';
+import 'package:whatsapp_chat/views/MessageScreen/widgets/send_message_widget.dart';
 import '../../components/pop_up_menu_item.dart';
 
 class MessageScreen extends StatefulWidget {
-  final String name;
-  final String image;
+  final UserModel currentUser;
   final String receiverID;
+  final String receiverName;
+  final String receiverImage;
 
   const MessageScreen({
     super.key,
-    required this.name,
-    required this.image,
     required this.receiverID,
+    required this.currentUser,
+    required this.receiverName,
+    required this.receiverImage,
   });
 
   @override
@@ -22,73 +26,6 @@ class MessageScreen extends StatefulWidget {
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-  final _messageController = TextEditingController();
-  final auth = FirebaseAuth.instance;
-  final fireStore = FirebaseFirestore.instance;
-
-  sendMessage () async {
-    String message = _messageController.text;
-    _messageController.clear();
-    await fireStore
-        .collection('users')
-        .doc(auth.currentUser!.phoneNumber)
-        .collection('messages')
-        .doc(widget.receiverID)
-        .collection('chats')
-        .add({
-      'sender_number': auth.currentUser!.phoneNumber,
-      'receiver_number': widget.receiverID,
-      'message': message,
-      'type': 'text',
-      'date': DateTime.now(),
-    }).then((value) {
-      fireStore
-          .collection('users')
-          .doc(auth.currentUser!.phoneNumber)
-          .collection('messages')
-          .doc(widget.receiverID)
-          .set({
-        'last_message': message,
-      });
-    });
-
-    await fireStore
-        .collection('users')
-        .doc(widget.receiverID)
-        .collection('messages')
-        .doc(auth.currentUser!.phoneNumber)
-        .collection('chats')
-        .add({
-      'sender_number': widget.receiverID,
-      'receiver_number': auth.currentUser!.phoneNumber,
-      'message': message,
-      'type': 'text',
-      'date': DateTime.now(),
-    }).then((value) {
-      fireStore
-          .collection('users')
-          .doc(widget.receiverID)
-          .collection('messages')
-          .doc(auth.currentUser!.phoneNumber)
-          .set({
-        'last_message': message,
-      });
-    });
-  }
-  addFriend () async {
-    await fireStore.collection('users')
-        .doc(auth.currentUser!.phoneNumber)
-        .collection('friends').add({
-      'friend_number' : widget.receiverID,
-    }).then((value){
-      fireStore.collection('users')
-          .doc(widget.receiverID)
-          .collection('friends').add({
-        'friend_number' : auth.currentUser!.phoneNumber,
-      });
-    });
-  }
-
   List<PopupMenuEntry<dynamic>> popUpItems = [
     popupMenuItem(
       title: 'Add to contacts',
@@ -115,10 +52,13 @@ class _MessageScreenState extends State<MessageScreen> {
       color: white,
     ),
   ];
+  final fireStore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery
+        .of(context)
+        .size;
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -126,7 +66,7 @@ class _MessageScreenState extends State<MessageScreen> {
         leadingWidth: size.width * .25,
         leading: InkWell(
           onTap: () {
-            // Navigator.pop(context);
+            Navigator.pop(context);
           },
           child: Row(
             children: [
@@ -141,7 +81,7 @@ class _MessageScreenState extends State<MessageScreen> {
               ),
               CircleAvatar(
                 backgroundColor: white.withOpacity(.1),
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.receiverImage),
               )
             ],
           ),
@@ -150,7 +90,7 @@ class _MessageScreenState extends State<MessageScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.name,
+              widget.receiverName,
               style: const TextStyle(color: white, fontSize: 15),
             ),
             Text(
@@ -221,257 +161,67 @@ class _MessageScreenState extends State<MessageScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Expanded(
-                child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: messageData.length,
-                    itemBuilder: (_, index) {
-                      final data = messageData[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (data['type'] != 'sent')
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                child: StreamBuilder(
+                    stream: fireStore
+                        .collection('users')
+                        .doc(widget.currentUser.phoneNumber)
+                        .collection('messages')
+                        .doc(widget.receiverName)
+                        .collection('chats')
+                        .orderBy('date', descending: true)
+                        .snapshots(),
+                    builder: (_, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        if (snapshot.data!.docs.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No Message',
+                              style: TextStyle(color: white.withOpacity(.9)),
+                            ),
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          reverse: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (_, index) {
+                            final data = snapshot.data!.docs[index];
+                            bool isSender = data['sender_number'] ==
+                                widget.currentUser.phoneNumber;
+                            return Row(
+                              mainAxisAlignment: isSender ? MainAxisAlignment
+                                  .end : MainAxisAlignment.start,
                               children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0),
-                                      child: Container(
-                                        constraints: BoxConstraints(
-                                            maxWidth: size.width * .7),
-                                        decoration: const BoxDecoration(
-                                            color: appBarColor,
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(20),
-                                              bottomLeft: Radius.circular(20),
-                                              bottomRight: Radius.circular(20),
-                                            )),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10.0,
-                                            vertical: 10,
-                                          ),
-                                          child: Text(
-                                            data['text'],
-                                            style: const TextStyle(
-                                              color: white,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  data['time'],
-                                  style:
-                                      TextStyle(color: white.withOpacity(.5)),
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  margin: const EdgeInsets.all(16),
+                                  constraints: const BoxConstraints(
+                                      maxWidth: 200),
+                                  decoration: BoxDecoration(
+                                      color: isSender ? primary : white
+                                          .withOpacity(.1),
+                                      borderRadius: BorderRadius.circular(12)
+                                  ),
                                 )
                               ],
-                            )
-                          else
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                data['message_type'] == 'emoji'
-                                    ? Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8.0),
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                  color: primary,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20),
-                                                    bottomLeft:
-                                                        Radius.circular(20),
-                                                    // bottomRight: Radius.circular(20),
-                                                  )),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 10,
-                                                ),
-                                                child: Text(
-                                                  data['text'],
-                                                  style: const TextStyle(
-                                                    color: white,
-                                                    fontSize: 80,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8.0),
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                  color: primary,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20),
-                                                    bottomLeft:
-                                                        Radius.circular(20),
-                                                    // bottomRight: Radius.circular(20),
-                                                  )),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 10,
-                                                ),
-                                                child: Text(
-                                                  data['text'],
-                                                  style: const TextStyle(
-                                                    color: white,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      data['time'],
-                                      style: TextStyle(
-                                          color: white.withOpacity(.5)),
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Image.asset(
-                                      'assets/images/sent.png',
-                                      width: 30,
-                                      color: data['status'] == 'seen'
-                                          ? primary
-                                          : white.withOpacity(.5),
-                                    )
-                                  ],
-                                )
-                              ],
-                            )
-                        ],
-                      );
+                            );
+                          },);
+                      }
                     }),
+              ),
+              SendMessageWidget(
+                currentUser: widget.currentUser,
+                receiverID: widget.receiverID,
+                receiverName: widget.receiverName,
+                receiverImage: widget.receiverImage,
               ),
               const SizedBox(
                 height: 10,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 8,
-                    child: Container(
-                      width: size.width * .9,
-                      decoration: BoxDecoration(
-                        color: appBarColor,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.emoji_emotions_outlined,
-                              size: 28,
-                              color: white.withOpacity(.5),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            SizedBox(
-                              width: size.width * .4,
-                              child: TextField(
-                                controller: _messageController,
-                                maxLines: 5,
-                                minLines: 1,
-                                keyboardType: TextInputType.multiline,
-                                style: TextStyle(color: white.withOpacity(.5)),
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Message',
-                                    hintStyle: TextStyle(
-                                        color: white.withOpacity(.5))),
-                              ),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              Icons.link_sharp,
-                              size: 37,
-                              color: white.withOpacity(.5),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.photo_camera,
-                              size: 28,
-                              color: white.withOpacity(.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      sendMessage();
-                      addFriend();
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Icon(
-                            Icons.mic,
-                            color: white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              )
             ],
           ),
         ),

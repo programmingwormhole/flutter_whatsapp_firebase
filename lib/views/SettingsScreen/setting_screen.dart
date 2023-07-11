@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_chat/utils/colors.dart';
 import 'package:whatsapp_chat/widgets/custom_app_bar.dart';
-import 'package:whatsapp_chat/widgets/custom_setting_items.dart';
+import 'package:whatsapp_chat/views/SettingsScreen/widgets/custom_setting_items.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});

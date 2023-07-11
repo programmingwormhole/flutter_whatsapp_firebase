@@ -104,9 +104,10 @@ class _ContactScreenState extends State<ContactScreen> {
           navigator(
               context,
               MessageScreen(
-                name: resultData['name'],
-                image: resultData['profile_picture'],
                 receiverID: resultData['phone_number'],
+                currentUser: widget.user,
+                receiverName: resultData['name'],
+                receiverImage: resultData['profile_picture'],
               ));
         } else {
           setState(() {
@@ -314,107 +315,6 @@ class _ContactScreenState extends State<ContactScreen> {
           ),
         ),
       ),
-      // body: Center(
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     mainAxisAlignment: MainAxisAlignment.start,
-      //     children: [
-      //       const SizedBox(
-      //         height: 20,
-      //       ),
-      //       Container(
-      //         width: size.width * .9,
-      //         decoration: BoxDecoration(
-      //           color: white.withOpacity(.1),
-      //           borderRadius: BorderRadius.circular(15),
-      //         ),
-      //         child: Center(
-      //           child: TextFormField(
-      //             controller: _searchDataController,
-      //             style: const TextStyle(
-      //               color: white,
-      //             ),
-      //             onChanged: (value) {
-      //               setState(() {
-      //                 searchValue = value;
-      //               });
-      //               if (searchValue.startsWith(RegExp(r'[0-9]'))) {
-      //                 _searchDataController.clear();
-      //                 snackBar(
-      //                   context: context,
-      //                   message:
-      //                       'Number should be start with (+) and country code',
-      //                 );
-      //               } else if (searchValue.contains(' ')) {
-      //                 snackBar(
-      //                   context: context,
-      //                   message: 'Please remove space from the number',
-      //                 );
-      //               }
-      //               print(searchValue);
-      //             },
-      //             decoration: InputDecoration(
-      //                 border: InputBorder.none,
-      //                 prefixIcon: Icon(
-      //                   Icons.person,
-      //                   color: white.withOpacity(.5),
-      //                 ),
-      //                 suffixIcon: IconButton(
-      //                   onPressed: () {
-      //                     onSearchTrigger();
-      //                   },
-      //                   icon: const Icon(
-      //                     Icons.search,
-      //                     color: white,
-      //                   ),
-      //                 ),
-      //                 labelText: 'Search',
-      //                 labelStyle: TextStyle(color: white.withOpacity(.5)),
-      //                 hintText: '(+1) xxxxxxxxxx',
-      //                 hintStyle: TextStyle(color: white.withOpacity(.5))),
-      //           ),
-      //         ),
-      //       ),
-      //       const SizedBox(
-      //         height: 10,
-      //       ),
-      //       if (searchData.isNotEmpty)
-      //         Expanded(
-      //           child: ListView.builder(
-      //             shrinkWrap: true,
-      //             itemCount: searchData.length,
-      //             itemBuilder: (_, index) {
-      //               final data = searchData[index];
-      //               return ListTile(
-      //                 leading: CircleAvatar(
-      //                   radius: 25,
-      //                   backgroundColor: primary.withOpacity(.5),
-      //                   backgroundImage: NetworkImage(data['profile_picture']),
-      //                 ),
-      //                 title: Text(
-      //                   data['name'],
-      //                   style: const TextStyle(
-      //                     color: white,
-      //                     fontSize: 18,
-      //                   ),
-      //                 ),
-      //                 subtitle: Text(
-      //                   data['phone_number'],
-      //                   style: TextStyle(
-      //                     color: white.withOpacity(.5),
-      //                   ),
-      //                 ),
-      //               );
-      //             },
-      //           ),
-      //         )
-      //       else if (isLoading == true)
-      //         const Center(
-      //           child: CircularProgressIndicator(),
-      //         ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }
